@@ -63,6 +63,146 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-block" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/02/01/block/" class="article-date">
+  <time datetime="2015-02-01T08:23:49.000Z" itemprop="datePublished">Feb 1 2015</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/02/01/block/">block</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="import_">import <foundation foundation.h=""></foundation></h1>
+<p>typedef double (^MKSampleMultiply2BlockRef)(double c ,double d);</p>
+<p>typedef double (^MKSampleMultiplyBlockRef)(void);</p>
+<p>int globalVal = 100;//全局变量</p>
+<p>int main(int argc, const char * argv[])<br>{</p>
+<pre><code>/<span class="keyword">*</span>
+代码块可以访问与它相同的（本地）有效范围内声明的变量，也就是说代码块可以访问与它同时创建的有效变量
+ <span class="keyword">*</span>/
+</code></pre><p>//<br>//    int value=6;<br>//    int (^ multiply_block)(int number) = ^ (int number){return (value <em> number);};// 6 </em> 7=42；<br>//    int result = multiply_block(7);<br>//    printf(“Result= %d\n”,result);</p>
+<pre><code>// 关于参数和返回值的一些省略做法
+//        // <span class="number">1</span>.如果代码块不适用于传参数，可以将参数列表省略
+//        // <span class="number">2</span>.代码块中有<span class="keyword">return</span>语句，那么代码块的返回值类型就是<span class="keyword">return</span>值的类型，可省略返回值类型
+//        // <span class="number">3</span>.返回值省略时，表达式若有多个<span class="keyword">return</span>，则所有<span class="keyword">return</span>返回值的类型必须相同
+</code></pre><p>//<br>    //使用代码块时通常不需要创建一个代码块变量，而是在代码块中内联代码块中的内容。<br>//    NSArray <em>array = [NSArray arrayWithObjects:@”Amir”, @”Mishal”,@”Irrum”,@”Adam”,nil];<br>//    NSLog(@”array %@”,array);<br>//    NSArray </em> sortedArray = [array sortedArrayUsingComparator:^(NSString <em>object1,NSString </em>object2){return [object1 compare:object2];}];<br>//    NSLog(@”Sorted Array %@”,sortedArray);<br>//    </p>
+<pre><code><span class="comment">//typedef 关键字  减少编写代码时出错率</span>
+<span class="comment">//使用typedef来定义一个相同类型的代码块类型</span>
+/*
+
+ typedef <span class="built_in">double</span> (^MKSampleMultiply2BlockRef)(<span class="built_in">double</span> c ,<span class="built_in">double</span> d);
+ 定义了一个名称为 MKSampleMultiply2BlockRef 的代码块变量，它包含两个双浮点型参数并返回一个浮点型数值
+ 其他：
+ typedef void (^MKSampleVoidBlockRef)(void);
+ typedef void (^MKSampleStringBlockRef)(NSString *);
+ typedef <span class="built_in">double</span> (^MKSampleMultiplyBlockRef)(void);
+ 使用方法：
+ */
+</code></pre><p>//    MKSampleMultiply2BlockRef multiply2 = ^(double c ,double d){ return c<em>d; };<br>//    printf(“%f ,%f”,multiply2(4,5),multiply2(5,2));<br>//<br>    /</em><br>     代码块和变量</p>
+<pre><code> 代码块被声明后会捕捉创建点时的状态。
+ 代码块可以访问函数用到的标准类型的变量：
+ （1）全局变量，包括在封闭范围内声明的本地静态变量
+ （2）全局函数（明显不是真实的变量）
+ （3）封闭范围内的参数
+ （4）函数级别（即与代码块声明时相同的级别）的 _block 变量。它们是可以修改的变量。
+ （5）封闭范围内的非静态变量会被获取为常量
+ （6）OC实例变量
+ （7）代码块内部的本地变量
+ <span class="keyword">*</span>/
+
+/<span class="keyword">*</span>
+ 本地变量：就是与代码块在同一范围内声明的变量
+ <span class="keyword">*</span><span class="keyword">*</span>在它之前有效，执行完之后再次赋值后输出结果不变<span class="keyword">*</span><span class="keyword">*</span>
+ 变量与代码块拥有相同的有效范围
+ 原因：因为变量是本地的，代码块会在定义时复制并保存它们的状态。
+ <span class="keyword">*</span>/
+</code></pre><p>//    double a=10,b=20;<br>//    MKSampleMultiplyBlockRef multiply = ^ (void) { return a<em>b;};<br>//    NSLog(@”%f”,multiply());//200.000000<br>//    a=20;<br>//    b=50;<br>//    //MKSampleMultiplyBlockRef multiply = ^ (void) { return a</em>b;};<br>//    NSLog(@”%f”,multiply());//200.000000</p>
+<pre><code>/<span class="keyword">*</span>
+ 全局变量：变量标记为静态的（全局的）
+ <span class="keyword">*</span>/
+</code></pre><p>//    static double a=10,b=20;//全局变量<br>//    MKSampleMultiplyBlockRef multiply = ^ (void) { return a*b;};<br>//    NSLog(@”%f”,multiply());//200.000000<br>//    a=20;<br>//    b=50;<br>//    NSLog(@”%f”,multiply());//1000.000000</p>
+<pre><code><span class="comment">// 全局变量，可以在代码块内部进行改变操作</span>
+</code></pre><p>//    void (^testValBlock1)() = ^{<br>//        globalVal++;//int globalVal = 100 全局变量<br>//        NSLog(@”globalVal&gt;&gt;&gt;&gt;&gt;&gt;&gt;%d”, globalVal);<br>//    };<br>//    testValBlock1();</p>
+<pre><code>/*
+ 参数变量：
+ 代码块中的参数变量与函数中的参数变量具有同样地作用。
+
+ typedef <span class="built_in">double</span> (^MKSampleMultiply2BlockRef)(<span class="built_in">double</span> c ,<span class="built_in">double</span> d);
+<span class="constant"> MKSampleMultiply2BlockRef multiply2</span> = ^(<span class="built_in">double</span> c ,<span class="built_in">double</span> d){ return c*d; };
+<span class="constant"> NSLog(@"%f ,%f",multiply2(4,5),multiply2(5,2));
+
+ */
+
+
+
+/*
+ _block变量：本地变量会被代码块作为常量获取到，如果你想修改它们的值，必须将它们声明为可修改的。
+
+ 有些变量是无法声明为 __block类型的，它们有两个限制：
+ （1）没有长度可变的数组
+ （2）没有包含可变长度数组的结构体
+
+ */</span>
+</code></pre><p>//    double c=3;<br>//    MKSampleMultiplyBlockRef multiply3 =^(double a,double b) { c=a*b; };//这就是错的</p>
+<p>//    <em>_block double c = 3;//两个” </em> _  “下划线<br>//    MKSampleMultiply2BlockRef multiply5=^(double a,double b){return c= (a* b);};<br>//    NSLog(@”%f”,multiply5(10,20));</p>
+<pre><code><span class="comment">// 局部变量，在定义代码块的时候获取局部变量的一个快照，所以不能在代码块内部改变此变量</span>
+__block <span class="keyword">int</span> inVal = <span class="number">50</span>;
+<span class="keyword">void</span> (^testValBlock)() = ^{
+    inVal++;
+    <span class="built_in">NSLog</span>(<span class="string">@"&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;inVal&gt;&gt;&gt;&gt;&gt;&gt;&gt;%d"</span>, inVal);
+};
+inVal++;
+testValBlock();
+
+
+
+
+
+
+<span class="comment">/*
+ 代码块内部的本地变量：这些变量与函数中的本地变量具有同样的作用。
+ 代码块的定义, 注意：此处的逻辑不会被执行，在调用的时候才会执行
+ */</span>
+</code></pre><p>//    void(^MKSampleBlockRef)(void)=^(void){<br>//        double a=4;<br>//        double c=2;<br>//        NSLog(@”%f”,a*c);<br>//    };<br>//    MKSampleBlockRef();</p>
+<pre><code>/<span class="keyword">*</span>
+ 代码块   内存管理
+ 代码访问OC变量时必须小心
+ 规则：
+ 如果引用一个OC对象，必须要保留它
+ 如果通过引用 访问了一个实例变量 要保留一次self(即执行方法的对象)
+ 如果通过一个数值 访问了一个实例变量，变量需要保留
+
+ <span class="keyword">*</span>/
+</code></pre><p>   return 0;<br>}</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2015/02/01/block/" data-id="7wbbh5f4f4wuf8ht" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/block/">block</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/02/01/hello-world/" class="article-date">
@@ -125,14 +265,28 @@
     
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/block/">block</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/block/" style="font-size: NaNpx;">block</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -142,6 +296,10 @@
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/02/01/block/">block</a>
+          </li>
         
           <li>
             <a href="/2015/02/01/hello-world/">Hello World</a>
